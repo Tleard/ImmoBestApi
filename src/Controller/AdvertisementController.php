@@ -6,6 +6,7 @@ use App\Entity\Advertisement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
@@ -55,14 +56,14 @@ class AdvertisementController extends AbstractController {
             [
                 'page' => $page,
                 'data' => array_map(function (Advertisement $item){
-                    return $this->generateUrl('AdvertisementGet', ['id' =>$item->getSlug()]);
+                    return $this->generateUrl('AdvertisementGet', ['id' =>$item->getId()]);
                 }, $items)
             ]
         );
     }
 
     /**
-     * @Route("/post/{id}", name="AdvertisementGet", requirements={"id"="\d+"})
+     * @Route("/post/{id}", name="AdvertisementGet", requirements={"id"="\d+"}, methods={"GET"})
      * @param $id
      * @return JsonResponse
      */
@@ -81,6 +82,20 @@ class AdvertisementController extends AbstractController {
         return $this->json(
             $this->getDoctrine()->getRepository(Advertisement::class)->findOneBy(['slug' => $slug])
         );
+    }
+
+    /**
+     * @param Advertisement $advertisement
+     * @Route("/post/{id}", name="AdvertisementDelete", methods={"DELETE"})
+     * @return JsonResponse
+     */
+    public function DeleteAction(Advertisement $advertisement)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($advertisement);
+        $em->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
 }
