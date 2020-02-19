@@ -35,7 +35,8 @@ class Advertisement
     private $content;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="advertisement")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $author;
 
@@ -86,19 +87,22 @@ class Advertisement
     }
 
     /**
-     * @return string|null
+     * @return User
      */
-    public function getAuthor(): ?string
+    public function getAuthor() : User
     {
         return $this->author;
     }
 
-    public function setAuthor(string $author): self
+    /**
+     * @param User $author
+     */
+    public function setAuthor(User $author): void
     {
         $this->author = $author;
-
-        return $this;
     }
+
+
 
     /**
      * @return mixed
@@ -115,6 +119,7 @@ class Advertisement
     {
         $this->slug = $slug;
     }
+
 
 
 }
