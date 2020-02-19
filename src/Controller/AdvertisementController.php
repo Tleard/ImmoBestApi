@@ -39,7 +39,7 @@ class AdvertisementController extends AbstractController {
      */
     public function listAction($page)
     {
-        return new JsonResponse(
+        return $this->json(
             [
                 'page' => $page,
                 'data' => array_map(function ($item){
@@ -56,7 +56,7 @@ class AdvertisementController extends AbstractController {
      */
     public function postAction($id)
     {
-        return new JsonResponse(
+        return $this->json(
             self::POSTS[array_search($id, array_column(self::POSTS, 'id'))]
         );
     }
@@ -66,7 +66,7 @@ class AdvertisementController extends AbstractController {
      */
     public function PostBySlug($slug)
     {
-        return new JsonResponse(
+        return $this->json(
             self::POSTS[array_search($slug, array_column(self::POSTS, 'slug'))]
         );
     }
