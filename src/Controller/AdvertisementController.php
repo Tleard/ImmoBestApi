@@ -19,25 +19,6 @@ use Symfony\Component\Serializer\Serializer;
  */
 class AdvertisementController extends AbstractController {
 
-    private const POSTS = [
-    [
-        'id' => 1,
-        'slug' => 'hello-world',
-        'title' => 'Hello world!'
-    ],
-    [
-        'id' => 2,
-        'slug' => 'another-post',
-        'title' => 'This is another post!'
-    ],
-    [
-        'id' => 3,
-        'slug' => 'last-example',
-        'title' => 'This is the last example'
-    ]
-    ];
-
-
     /**
      * @param Request $request
      * @Route("/add", name="blog_add", methods={"POST"})
@@ -64,37 +45,41 @@ class AdvertisementController extends AbstractController {
      * @param $page
      * @return JsonResponse
      */
-    public function listAction($page)
+    public function listAction($page, Request $request)
     {
+        $limit = $request->get('limit', 10);
+        $repository = $this->getDoctrine()->getRepository(Advertisement::class);
+        $items = $repository->findAll();
+
         return $this->json(
             [
                 'page' => $page,
-                'data' => array_map(function ($item){
-                    return $this->generateUrl('AdvertisementPost', ['id' =>$item['id']]);
-                }, self::POSTS)
+                'data' => array_map(function (Advertisement $item){
+                    return $this->generateUrl('AdvertisementGet', ['id' =>$item->getSlug()]);
+                }, $items)
             ]
         );
     }
 
     /**
-     * @Route("/{id}", name="AdvertisementPost", requirements={"id"="\d+"})
+     * @Route("/post/{id}", name="AdvertisementGet", requirements={"id"="\d+"})
      * @param $id
      * @return JsonResponse
      */
-    public function postAction($id)
+    public function getAction($id)
     {
         return $this->json(
-            self::POSTS[array_search($id, array_column(self::POSTS, 'id'))]
+            $this->getDoctrine()->getRepository(Advertisement::class)->find($id)
         );
     }
 
     /**
-     * @Route("/{slug}", name="AdvertisementBySlug")
+     * @Route("post/{slug}", name="AdvertisementBySlug")
      */
-    public function PostBySlug($slug)
+    public function GetBySlug($slug)
     {
         return $this->json(
-            self::POSTS[array_search($slug, array_column(self::POSTS, 'slug'))]
+            $this->getDoctrine()->getRepository(Advertisement::class)->findOneBy(['slug' => $slug])
         );
     }
 
