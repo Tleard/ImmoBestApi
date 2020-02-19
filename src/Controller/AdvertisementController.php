@@ -25,13 +25,13 @@ class AdvertisementController extends AbstractController {
      * @Route("/add", name="blog_add", methods={"POST"})
      * @return JsonResponse
      */
-    public function add(Request $request)
+    public function addAction(Request $request)
     {
         $encoders = [new XmlEncoder(), new JsonEncoder()];
         $normalizers = [new ObjectNormalizer()];
 
         $serializer = new Serializer($normalizers, $encoders);
-        
+
         $advertisement = $serializer->deserialize($request->getContent(), Advertisement::class, 'json');
 
         $em = $this->getDoctrine()->getManager();
