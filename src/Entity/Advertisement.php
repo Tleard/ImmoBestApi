@@ -9,7 +9,10 @@ use App\Entity\Comment;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdvertisementRepository")
- * @ApiResource()
+ * @ApiResource(
+ *     itemOperations={"get"},
+ *     collectionOperations={"get"}
+ * )
  */
 class Advertisement
 {

@@ -7,9 +7,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraint as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     itemOperations={"get"},
+ *     collectionOperations={"post"},
+ *     normalizationContext={
+ *          "groups"={"read"}
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface
@@ -18,38 +26,50 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
+     * @Assert\NotBlank()
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Lenght(min=4, max=30)
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"read"})
+     * @Assert\NotBlank()
+     * @Assert\Length(min=5, max=32)
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"read"})
+     * @Assert\NotBlank()
+     * @Assert\Email()
+     * @Assert\Length(min=5, max=45)
      */
     private $email;
 
-
     /**
      * @@ORM\OneToMany(targetEntity="App\Entity\Advertisement", mappedBy="author")
-     *
+     * @Groups({"read"})
+     * @Assert\Length(min=5, max=45)
      */
     private $advertisement;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
+     * @Groups({"read"})
      */
     private $comments;
 
@@ -115,7 +135,7 @@ class User implements UserInterface
     /**
      * @return Collection
      */
-    public function getAdvertisement(): Collection
+    public function getAdvertisement()
     {
         return $this->advertisement;
     }
@@ -123,7 +143,7 @@ class User implements UserInterface
     /**
      * @return Collection
      */
-    public function getComments(): Collection
+    public function getComments()
     {
         return $this->comments;
     }
