@@ -9,12 +9,24 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Faker\Factory;
 
 class AppFixtures extends Fixture
 {
+    /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $passwordEncoder;
+
+    /**
+     * @var Factory
+     */
+    private $faker;
+
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
+        $this->faker = Factory::create();
     }
 
     /**
@@ -35,24 +47,19 @@ class AppFixtures extends Fixture
     public function loadAdvertisement(ObjectManager $manager)
     {
         $user1 = $this->getReference("Admin");
-        $user2 = $this->getReference("Admin1");
 
-        $advertisement = new Advertisement();
-        $advertisement->setTitle("A first post!");
-        $advertisement->setAuthor($user1);
-        $advertisement->setContent("Some Content");
-        $advertisement->setSlug("slug-slug");
-        $advertisement->setPublished(new \DateTime());
+        for ($i = 0; $i < 100; $i++){
+            $advertisement = new Advertisement();
+            $advertisement->setTitle($this->faker->realText(20));
+            $advertisement->setAuthor($user1);
+            $advertisement->setContent($this->faker->realText(35));
+            $advertisement->setSlug($this->faker->slug);
+            $advertisement->setPublished($this->faker->dateTimeThisMonth);
 
-        $manager->persist($advertisement);
+            $this->setReference("advertisement_$i", $advertisement);
 
-        $advertisement = new Advertisement();
-        $advertisement->setTitle("A second post!");
-        $advertisement->setAuthor($user2);
-        $advertisement->setContent("Some other Content");
-        $advertisement->setSlug("slug-slug-slug");
-        $advertisement->setPublished(new \DateTime());
-
+            $manager->persist($advertisement);
+        }
         $manager->flush();
     }
 
@@ -65,26 +72,22 @@ class AppFixtures extends Fixture
         $user1 = $this->getReference("Admin");
         $user2 = $this->getReference("Admin1");
 
-        $comment = New Comment();
+        for ($i = 0; $i < 100; $i++) {
+            $comment = new Comment();
+            $comment->setPublished($this->faker->dateTime);
+            $comment->setContent($this->faker->realText(30));
+            $comment->setAuthor($user1);
+            $comment->setAdvertisement($this->getReference("advertisement_$i"));
+            $manager->persist($comment);
+        }
 
-        $comment->setPublished(New \DateTime());
-        $comment->setContent("Some Comment");
-        $comment->setAuthor($user1);
-
-        $manager->persist($comment);
-
-        $comment->setPublished(New \DateTime());
-        $comment->setContent("Some Comment");
-        $comment->setAuthor($user2);
-
-        $manager->persist($comment);
 
         $manager->flush();
     }
 
     public function loadUsers(ObjectManager $manager)
     {
-        $user = New User();
+        $user = new User();
 
         $user->setUsername("admin");
         $user->setName("Dylan Martin");

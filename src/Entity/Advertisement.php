@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Entity\Comment;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdvertisementRepository")
@@ -23,7 +25,6 @@ class Advertisement
      */
     private $title;
 
-    //Todo: Change for Datetime Property
     /**
      * @ORM\Column(type="datetime")
      */
@@ -44,6 +45,26 @@ class Advertisement
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $slug;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="advertisement")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $comments;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getComments()
+    {
+        return $this->comments;
+    }
+
 
     public function getId(): ?int
     {

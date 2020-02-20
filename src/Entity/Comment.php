@@ -34,6 +34,12 @@ class Comment
      */
     private $author;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Advertisement", inversedBy="comments")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $advertisement;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -82,5 +88,23 @@ class Comment
         return $this;
     }
 
+    /**
+     * @return Advertisement
+     */
+    public function getAdvertisement() : Advertisement
+    {
+        return $this->advertisement;
+    }
+
+    /**
+     * @param Advertisement $advertisement
+     * @return Comment
+     */
+    public function setAdvertisement($advertisement): self
+    {
+        $this->advertisement = $advertisement;
+
+        return $this;
+    }
 
 }
