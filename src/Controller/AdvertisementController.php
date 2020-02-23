@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Advertisement;
+use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,7 @@ class AdvertisementController extends AbstractController {
 
     /**
      * @param Request $request
-     * @Route("/add", name="blog_add", methods={"POST"})
+     * @Route("/", name="AdvertisementCreate", methods={"POST"})
      * @return JsonResponse
      * @throws Exception
      */
@@ -37,7 +38,7 @@ class AdvertisementController extends AbstractController {
         $advertisement = $serializer->deserialize($request->getContent(), Advertisement::class, 'json');
 
         $em = $this->getDoctrine()->getManager();
-        $advertisement->setPublished(new \DateTime());
+        $advertisement->setPublished(new DateTime());
         $em->persist($advertisement);
         $em->flush();
 

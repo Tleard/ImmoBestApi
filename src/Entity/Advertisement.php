@@ -13,7 +13,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ApiResource(
  *     itemOperations={"get"},
  *     collectionOperations={
- *      "get", "post"
+ *          "get",
+ *          "post"={
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
+ *          }
  *     }
  * )
  */
@@ -29,6 +32,7 @@ class Advertisement
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Assert\Length(min="7")
      */
     private $title;
 
@@ -40,6 +44,7 @@ class Advertisement
     /**
      * @ORM\Column(type="text", length=255)
      * @Assert\NotBlank()
+     * @Assert\Length(min="2")
      */
     private $content;
 

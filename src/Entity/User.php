@@ -9,7 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraint as Assert;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Regex;
 
 /**
  * @ApiResource(
@@ -39,14 +40,15 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(min=3, max=32)
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Regex(
-     *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
-     *     message="Password must be seven characters long and contain at least one digit, one uppercase letter and one lower case letter"
+     *     pattern="/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/",
+     *     message="Password must be six characters long and contain at least one digit, one uppercase letter and one lower case letter"
      * )
      */
     private $password;
@@ -79,8 +81,6 @@ class User implements UserInterface
     /**
      * @@ORM\OneToMany(targetEntity="App\Entity\Advertisement", mappedBy="author")
      * @Groups({"read"})
-     * @Assert\NotBlank()
-     * @Assert\Length(min=5, max=45)
      */
     private $advertisement;
 

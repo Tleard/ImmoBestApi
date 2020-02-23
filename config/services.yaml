@@ -6,6 +6,10 @@
 parameters:
 
 services:
+    tenant_user_service:
+        class: App\EventSubscriber\AuthoredEntitySubscriber
+        arguments: [ '@security.token_storage' ]
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
