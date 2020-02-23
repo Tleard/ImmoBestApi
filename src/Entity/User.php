@@ -13,7 +13,11 @@ use Symfony\Component\Validator\Constraint as Assert;
 
 /**
  * @ApiResource(
- *     itemOperations={"get"},
+ *     itemOperations={
+ *          "get"={
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
+ *          }
+ *      },
  *     collectionOperations={"post"},
  *     normalizationContext={
  *          "groups"={"read"}
@@ -40,28 +44,43 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Regex(
+     *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
+     *     message="Password must be seven characters long and contain at least one digit, one uppercase letter and one lower case letter"
+     * )
      */
     private $password;
 
     /**
+     * @Assert\Expression(
+     *     "this.getPassword() == this.getRetypedPassword()",
+     *      message="Passwords does not match"
+     * )
      */
     private $retypedPassword;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"read"})
+     * @Assert\NotBlank()
+     * @Assert\Length(min=5, max=32)
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"read"})
+     * @Assert\NotBlank()
+     * @Assert\Email()
+     * @Assert\Length(min=5, max=45)
      */
     private $email;
 
     /**
      * @@ORM\OneToMany(targetEntity="App\Entity\Advertisement", mappedBy="author")
      * @Groups({"read"})
+     * @Assert\NotBlank()
+     * @Assert\Length(min=5, max=45)
      */
     private $advertisement;
 

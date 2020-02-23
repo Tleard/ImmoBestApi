@@ -6,12 +6,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Comment;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdvertisementRepository")
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={
+ *      "get", "post"
+ *     }
  * )
  */
 class Advertisement
@@ -25,6 +28,7 @@ class Advertisement
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $title;
 
@@ -35,6 +39,7 @@ class Advertisement
 
     /**
      * @ORM\Column(type="text", length=255)
+     * @Assert\NotBlank()
      */
     private $content;
 
@@ -46,6 +51,7 @@ class Advertisement
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank()
      */
     private $slug;
 

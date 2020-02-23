@@ -27,7 +27,7 @@ class AdvertisementController extends AbstractController {
      * @return JsonResponse
      * @throws Exception
      */
-    public function addAction(Request $request)
+    public function CreateAction(Request $request)
     {
         $encoders = [new XmlEncoder(), new JsonEncoder()];
         $normalizers = [new ObjectNormalizer()];
