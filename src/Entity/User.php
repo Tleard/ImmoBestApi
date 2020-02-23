@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 
 /**
  * @ApiResource(
+ *     normalizationContext={"groups"={"get"}},
  *     itemOperations={
  *          "get"={
  *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
@@ -25,6 +26,9 @@ use Symfony\Component\Validator\Constraints\Regex;
  *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user",
  *              "denormalization_context"={
  *                  "groups"={"put"}
+ *              },
+ *              "normalization_context"={
+ *                  "groups"={"get"}
  *              }
  *          }
  *      },
@@ -32,6 +36,9 @@ use Symfony\Component\Validator\Constraints\Regex;
  *          "post" = {
  *              "denormalization_context"={
  *                  "groups"={"post"}
+ *              },
+ *              "normalization_context"={
+ *                  "groups"={"put"}
  *              }
  *          }
  *     }
@@ -179,6 +186,8 @@ class User implements UserInterface
     {
         return $this->comments;
     }
+
+
 
 
     /**

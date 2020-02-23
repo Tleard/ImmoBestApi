@@ -126,6 +126,8 @@ class Advertisement
         return $this;
     }
 
+
+
     /**
      * @return User
      */
@@ -137,7 +139,7 @@ class Advertisement
     /**
      * @param User $author
      */
-    public function setAuthor(User $author): void
+    public function setAuthor(User $author)
     {
         $this->author = $author;
     }

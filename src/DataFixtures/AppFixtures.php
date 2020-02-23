@@ -7,9 +7,8 @@ use App\Entity\Comment;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Faker\Factory;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
@@ -23,6 +22,33 @@ class AppFixtures extends Fixture
      */
     private $faker;
 
+    private const USERS = [
+        [
+            'username' => 'admin',
+            'email' => 'admin@blog.com',
+            'name' => 'Piotr Jura',
+            'password' => 'admin1'
+        ],
+        [
+            'username' => 'john_doe',
+            'email' => 'john@blog.com',
+            'name' => 'John Doe',
+            'password' => 'secret123#'
+        ],
+        [
+            'username' => 'rob_smith',
+            'email' => 'rob@blog.com',
+            'name' => 'Rob Smith',
+            'password' => 'secret123#'
+        ],
+        [
+            'username' => 'jenny_rowling',
+            'email' => 'jenny@blog.com',
+            'name' => 'Jenny Rowling',
+            'password' => 'secret123#'
+        ]
+    ];
+
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
@@ -30,89 +56,80 @@ class AppFixtures extends Fixture
     }
 
     /**
+     * Load data fixtures with the passed EntityManager
      * @param ObjectManager $manager
-     * @throws \Exception
      */
     public function load(ObjectManager $manager)
     {
         $this->loadUsers($manager);
-        $this->loadAdvertisement($manager);
+        $this->loadBlogPosts($manager);
         $this->loadComments($manager);
     }
 
-    /**
-     * @param ObjectManager $manager
-     * @throws \Exception
-     */
-    public function loadAdvertisement(ObjectManager $manager)
+    public function loadBlogPosts(ObjectManager $manager)
     {
-        $user1 = $this->getReference("Admin");
-
-        for ($i = 0; $i < 100; $i++){
+        for ($i = 0; $i < 100; $i++) {
             $advertisement = new Advertisement();
-            $advertisement->setTitle($this->faker->realText(20));
-            $advertisement->setAuthor($user1);
-            $advertisement->setContent($this->faker->realText(35));
+            $advertisement->setTitle($this->faker->realText(30));
+            $advertisement->setPublished($this->faker->dateTimeThisYear);
+            $advertisement->setContent($this->faker->realText());
+
+            $authorReference = $this->getRandomUserReference();
+
+            $advertisement->setAuthor($authorReference);
             $advertisement->setSlug($this->faker->slug);
-            $advertisement->setPublished($this->faker->dateTimeThisMonth);
 
             $this->setReference("advertisement_$i", $advertisement);
 
             $manager->persist($advertisement);
         }
+
         $manager->flush();
     }
 
-    /**
-     * @param ObjectManager $manager
-     * @throws \Exception
-     */
     public function loadComments(ObjectManager $manager)
     {
-        $user1 = $this->getReference("Admin");
-        $user2 = $this->getReference("Admin1");
-
         for ($i = 0; $i < 100; $i++) {
-            $comment = new Comment();
-            $comment->setPublished($this->faker->dateTime);
-            $comment->setContent($this->faker->realText(30));
-            $comment->setAuthor($user1);
-            $comment->setAdvertisement($this->getReference("advertisement_$i"));
-            $manager->persist($comment);
-        }
+            for ($j = 0; $j < rand(1, 10); $j++) {
+                $comment = new Comment();
+                $comment->setContent($this->faker->realText());
+                $comment->setPublished($this->faker->dateTimeThisYear);
 
+                $authorReference = $this->getRandomUserReference();
+
+                $comment->setAuthor($authorReference);
+                $comment->setAdvertisement($this->getReference("advertisement_$i"));
+
+                $manager->persist($comment);
+            }
+        }
 
         $manager->flush();
     }
 
     public function loadUsers(ObjectManager $manager)
     {
-        $user = new User();
+        foreach (self::USERS as $userFixture) {
+            $user = new User();
+            $user->setUsername($userFixture['username']);
+            $user->setEmail($userFixture['email']);
+            $user->setName($userFixture['name']);
 
-        $user->setUsername("admin");
-        $user->setName("Dylan Martin");
-        $user->setEmail("dylanmartinpro@gmail.com");
-        $user->setPassword($this->passwordEncoder->encodePassword(
-            $user,
-            'admin'
-        ));
+            $user->setPassword($this->passwordEncoder->encodePassword(
+                $user,
+                $userFixture['password']
+            ));
 
-        $this->addReference('Admin', $user);
+            $this->addReference('user_' . $userFixture['username'], $user);
 
-        $manager->persist($user);
-
-        $user->setUsername("admin1");
-        $user->setName("Thomas Leard");
-        $user->setEmail("thomas.leard@gmail.com");
-        $user->setPassword($this->passwordEncoder->encodePassword(
-            $user,
-            'admin'
-        ));
-
-        $this->addReference('Admin1', $user);
-
-        $manager->persist($user);
+            $manager->persist($user);
+        }
 
         $manager->flush();
+    }
+
+    protected function getRandomUserReference()
+    {
+        return $this->getReference('user_'.self::USERS[rand(0, 3)]['username']);
     }
 }
