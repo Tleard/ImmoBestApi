@@ -16,12 +16,24 @@ use Symfony\Component\Validator\Constraints\Regex;
  * @ApiResource(
  *     itemOperations={
  *          "get"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
+ *               "normalization_context"={
+ *                  "groups"={"get"}
+ *               }
+ *          },
+ *          "put"={
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user",
+ *              "denormalization_context"={
+ *                  "groups"={"put"}
+ *              }
  *          }
  *      },
- *     collectionOperations={"post"},
- *     normalizationContext={
- *          "groups"={"read"}
+ *     collectionOperations={
+ *          "post" = {
+ *              "denormalization_context"={
+ *                  "groups"={"post"}
+ *              }
+ *          }
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -34,13 +46,14 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"read"})
+     * @Groups({"get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(min=3, max=32)
+     * @Groups({"get","put", "post"})
      */
     private $username;
 
@@ -50,6 +63,7 @@ class User implements UserInterface
      *     pattern="/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/",
      *     message="Password must be six characters long and contain at least one digit, one uppercase letter and one lower case letter"
      * )
+     * @Groups({"put", "post"})
      */
     private $password;
 
@@ -58,12 +72,13 @@ class User implements UserInterface
      *     "this.getPassword() == this.getRetypedPassword()",
      *      message="Passwords does not match"
      * )
+     * @Groups({"put", "post"})
      */
     private $retypedPassword;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"read"})
+     * @Groups({"get", "put", "post"})
      * @Assert\NotBlank()
      * @Assert\Length(min=5, max=32)
      */
@@ -71,7 +86,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"read"})
+     * @Groups({"put", "post"})
      * @Assert\NotBlank()
      * @Assert\Email()
      * @Assert\Length(min=5, max=45)
@@ -80,13 +95,13 @@ class User implements UserInterface
 
     /**
      * @@ORM\OneToMany(targetEntity="App\Entity\Advertisement", mappedBy="author")
-     * @Groups({"read"})
+     * @Groups({"get"})
      */
     private $advertisement;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
-     * @Groups({"read"})
+     * @Groups({"get"})
      */
     private $comments;
 
