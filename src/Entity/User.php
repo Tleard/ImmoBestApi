@@ -30,56 +30,38 @@ class User implements UserInterface
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Groups({"read"})
-     * @Assert\NotBlank()
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\Lenght(min=4, max=30)
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     * @Assert\Regex(
-     *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
-     *     message="Password must be seven characters long and contain at least one digit, one uppercase letter and one lower case letter"
-     * )
      */
     private $password;
 
     /**
-     * @Assert\NotBlank()
-     * @Assert\Expression(
-     *     "this.getPassword() == this.getRetypedPassword()",
-     *      message="Passwords does not match"
-     * )
      */
     private $retypedPassword;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"read"})
-     * @Assert\NotBlank()
-     * @Assert\Length(min=5, max=32)
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"read"})
-     * @Assert\NotBlank()
-     * @Assert\Email()
-     * @Assert\Length(min=5, max=45)
      */
     private $email;
 
     /**
      * @@ORM\OneToMany(targetEntity="App\Entity\Advertisement", mappedBy="author")
      * @Groups({"read"})
-     * @Assert\Length(min=5, max=45)
      */
     private $advertisement;
 
