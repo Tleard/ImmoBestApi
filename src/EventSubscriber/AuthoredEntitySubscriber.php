@@ -3,8 +3,7 @@
 namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
-use App\Entity\Advertisement;
-use App\Entity\Comment;
+use App\Entity\AuthoredEntityInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -31,9 +30,6 @@ class AuthoredEntitySubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param ViewEvent $event
-     */
     public function getAuthenticatedUser(ViewEvent $event)
     {
         $entity = $event->getControllerResult();
@@ -48,7 +44,7 @@ class AuthoredEntitySubscriber implements EventSubscriberInterface
         /** @var UserInterface $author */
         $author = $token->getUser();
 
-        if (!$entity instanceof Advertisement && !$entity instanceof Comment  || Request::METHOD_PUT !== $method) {
+        if (!$entity instanceof AuthoredEntityInterface || Request::METHOD_POST !== $method) {
             return;
         }
 

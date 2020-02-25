@@ -2,10 +2,14 @@
 
 namespace App\Entity;
 
+use DateTime;
+use DateTimeInterface as DateTimeInterfaceAlias;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Comment;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -16,16 +20,19 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     "post"={
  *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user"
  *          }
-*      },
+ *      },
  *     collectionOperations={
- *          "get",
  *          "post"={
  *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
- *          }
+ *          },
+ *          "get"
+ *     },
+ *       denormalizationContext={
+ *         "groups"={"post"}
  *     }
  * )
  */
-class Advertisement
+class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInterface
 {
     /**
      * @ORM\Id()
@@ -38,6 +45,7 @@ class Advertisement
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Assert\Length(min="7")
+     * @Groups({"post"})
      */
     private $title;
 
@@ -50,6 +58,7 @@ class Advertisement
      * @ORM\Column(type="text", length=255)
      * @Assert\NotBlank()
      * @Assert\Length(min="2")
+     * @Groups({"post"})
      */
     private $content;
 
@@ -62,6 +71,7 @@ class Advertisement
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotBlank()
+     * @Groups({"post"})
      */
     private $slug;
 
@@ -107,7 +117,7 @@ class Advertisement
         return $this->published;
     }
 
-    public function setPublished($published): self
+    public function setPublished(DateTimeInterfaceAlias $published): PublishedDateEntityInterface
     {
         $this->published = $published;
 
@@ -137,14 +147,15 @@ class Advertisement
     }
 
     /**
-     * @param User $author
+     * @param UserInterface $author
+     * @return AuthoredEntityInterface
      */
-    public function setAuthor(User $author)
+    public function setAuthor(UserInterface $author): AuthoredEntityInterface
     {
         $this->author = $author;
+
+        return $this;
     }
-
-
 
     /**
      * @return mixed
