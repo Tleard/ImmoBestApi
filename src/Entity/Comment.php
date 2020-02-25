@@ -56,7 +56,7 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"post"})
+     * @Groups({"post", "get"})
      * @Assert\NotBlank()
      * @Assert\Length(min=5, max="3500")
      */
@@ -64,12 +64,14 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"get"})
      */
     private $published;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"read"})
      */
     private $author;
 

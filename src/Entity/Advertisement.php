@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use DateTime;
 use DateTimeInterface as DateTimeInterfaceAlias;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -77,7 +78,9 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="advertisement")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
+     * @Groups({"post", "get"})
+     * @ApiSubresource()
      */
     private $comments;
 
