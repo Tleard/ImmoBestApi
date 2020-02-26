@@ -11,35 +11,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"get"}},
  *     itemOperations={
- *          "get"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
- *               "normalization_context"={
- *                  "groups"={"get"}
- *               }
- *          },
- *          "put"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user",
- *              "denormalization_context"={
- *                  "groups"={"put"}
- *              },
- *              "normalization_context"={
- *                  "groups"={"get"}
- *              }
- *          }
- *      },
- *     collectionOperations={
- *          "post" = {
- *              "denormalization_context"={
- *                  "groups"={"post"}
- *              },
- *              "normalization_context"={
- *                  "groups"={"put"}
- *              }
- *          }
+ *         "get",
+ *         "put"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
+ *         }
  *     },
- *       denormalizationContext={
+ *     collectionOperations={
+ *         "get",
+ *         "post"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
+ *             "normalization_context"={
+ *                 "groups"={"get-comment-with-author"}
+ *             }
+ *         },
+ *         "api_blog_posts_comments_get_subresource"={
+ *             "normalization_context"={
+ *                 "groups"={"get-comment-with-author"}
+ *             }
+ *         }
+ *     },
+ *     denormalizationContext={
  *         "groups"={"post"}
  *     }
  * )
@@ -51,33 +43,35 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get","get-comment-with-author"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"post", "get"})
+     * @Groups({"post", "get-comment-with-author", "get"})
      * @Assert\NotBlank()
-     * @Assert\Length(min=5, max="3500")
+     * @Assert\Length(min=5, max=3000)
      */
     private $content;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"get"})
+     * @Groups({"get-comment-with-author", "get"})
      */
     private $published;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"read"})
+     * @Groups({"get-comment-with-author"})
      */
     private $author;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Advertisement", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"post"})
      */
     private $advertisement;
 

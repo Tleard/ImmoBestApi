@@ -53,14 +53,15 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get"})
+     * @Groups({"get", "get-comment-with-author"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\Length(min=3, max=32)
-     * @Groups({"get","put", "post"})
+     * @Groups({"get", "post", "get-comment-with-author"})
+     * @Assert\NotBlank(groups={"post"})
+     * @Assert\Length(min=6, max=255, groups={"post"})
      */
     private $username;
 
@@ -85,15 +86,15 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "put", "post"})
-     * @Assert\NotBlank()
-     * @Assert\Length(min=5, max=32)
+     * @Groups({"get", "post", "put", "get-comment-with-author"})
+     * @Assert\NotBlank(groups={"post"})
+     * @Assert\Length(min=5, max=255, groups={"post", "put"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"put", "post"})
+     * @Groups({"put", "post", "get-comment-with-author"})
      * @Assert\NotBlank()
      * @Assert\Email()
      * @Assert\Length(min=5, max=45)
