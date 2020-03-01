@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\BlogPostRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\AdvertisementRepository")
  * @ApiResource(
  *     itemOperations={
  *         "get"={
@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
+class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInterface
 {
     /**
      * @ORM\Id()
@@ -82,7 +82,7 @@ class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
     private $slug;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="blogPost")
+     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="advertisement")
      * @ApiSubresource()
      * @Groups({"get-blog-post-with-author"})
      */

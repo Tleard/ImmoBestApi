@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         "post"={
  *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
  *         },
- *         "api_blog_posts_comments_get_subresource"={
+ *         "api_advertisements_comments_get_subresource"={
  *             "normalization_context"={
  *                 "groups"={"get-comment-with-author"}
  *             }
@@ -65,11 +65,11 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
     private $author;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\BlogPost", inversedBy="comments")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Advertisement", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"post"})
      */
-    private $blogPost;
+    private $advertisement;
 
     public function getId()
     {
@@ -118,15 +118,21 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
         return $this;
     }
 
-    public function getBlogPost(): BlogPost
+    /**
+     * @return Advertisement
+     */
+    public function getAdvertisement()
     {
-        return $this->blogPost;
+        return $this->advertisement;
     }
 
-    public function setBlogPost(BlogPost $blogPost): self
+    /**
+     * @param Advertisement $advertisement
+     */
+    public function setAdvertisement($advertisement): void
     {
-        $this->blogPost = $blogPost;
-
-        return $this;
+        $this->advertisement = $advertisement;
     }
+
+
 }

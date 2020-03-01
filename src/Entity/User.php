@@ -102,7 +102,7 @@ class User implements UserInterface
     private $email;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\BlogPost", mappedBy="author")
+     * @ORM\OneToMany(targetEntity="Advertisement", mappedBy="author")
      * @Groups({"get"})
      */
     private $posts;

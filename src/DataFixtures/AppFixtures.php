@@ -2,11 +2,12 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\BlogPost;
+use App\Entity\Advertisement;
 use App\Entity\Comment;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use Faker\Factory;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
@@ -17,7 +18,7 @@ class AppFixtures extends Fixture
     private $passwordEncoder;
 
     /**
-     * @var \Faker\Factory
+     * @var Factory
      */
     private $faker;
 
@@ -51,7 +52,7 @@ class AppFixtures extends Fixture
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
-        $this->faker = \Faker\Factory::create();
+        $this->faker = Factory::create();
     }
 
     /**
@@ -61,26 +62,26 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $this->loadUsers($manager);
-        $this->loadBlogPosts($manager);
+        $this->loadAdvertisements($manager);
         $this->loadComments($manager);
     }
 
-    public function loadBlogPosts(ObjectManager $manager)
+    public function loadAdvertisements(ObjectManager $manager)
     {
         for ($i = 0; $i < 100; $i++) {
-            $blogPost = new BlogPost();
-            $blogPost->setTitle($this->faker->realText(30));
-            $blogPost->setPublished($this->faker->dateTimeThisYear);
-            $blogPost->setContent($this->faker->realText());
+            $advertisement = new Advertisement();
+            $advertisement->setTitle($this->faker->realText(30));
+            $advertisement->setPublished($this->faker->dateTimeThisYear);
+            $advertisement->setContent($this->faker->realText());
 
             $authorReference = $this->getRandomUserReference();
 
-            $blogPost->setAuthor($authorReference);
-            $blogPost->setSlug($this->faker->slug);
+            $advertisement->setAuthor($authorReference);
+            $advertisement->setSlug($this->faker->slug);
 
-            $this->setReference("blog_post_$i", $blogPost);
+            $this->setReference("advertisement_$i", $advertisement);
 
-            $manager->persist($blogPost);
+            $manager->persist($advertisement);
         }
 
         $manager->flush();
@@ -97,7 +98,7 @@ class AppFixtures extends Fixture
                 $authorReference = $this->getRandomUserReference();
 
                 $comment->setAuthor($authorReference);
-                $comment->setBlogPost($this->getReference("blog_post_$i"));
+                $comment->setAdvertisement($this->getReference("advertisement_$i"));
 
                 $manager->persist($comment);
             }

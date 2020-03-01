@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\BlogPost;
+use App\Entity\Advertisement;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,14 +22,14 @@ class BlogController extends AbstractController
     public function list($page = 1, Request $request)
     {
         $limit = $request->get('limit', 10);
-        $repository = $this->getDoctrine()->getRepository(BlogPost::class);
+        $repository = $this->getDoctrine()->getRepository(Advertisement::class);
         $items = $repository->findAll();
 
         return $this->json(
             [
                 'page' => $page,
                 'limit' => $limit,
-                'data' => array_map(function (BlogPost $item) {
+                'data' => array_map(function (Advertisement $item) {
                     return $this->generateUrl('blog_by_slug', ['slug' => $item->getSlug()]);
                 }, $items)
             ]
@@ -38,7 +38,7 @@ class BlogController extends AbstractController
 
     /**
      * @Route("/post/{id}", name="blog_by_id", requirements={"id"="\d+"}, methods={"GET"})
-     * @ParamConverter("post", class="App:BlogPost")
+     * @ParamConverter("post", class="App:Advertisement")
      */
     public function post($post)
     {
@@ -48,11 +48,11 @@ class BlogController extends AbstractController
 
     /**
      * @Route("/post/{slug}", name="blog_by_slug", methods={"GET"})
-     * The below annotation is not required when $post is typehinted with BlogPost
-     * and route parameter name matches any field on the BlogPost entity
-     * @ParamConverter("post", class="App:BlogPost", options={"mapping": {"slug": "slug"}})
+     * The below annotation is not required when $post is typehinted with Advertisement
+     * and route parameter name matches any field on the Advertisement entity
+     * @ParamConverter("post", class="App:Advertisement", options={"mapping": {"slug": "slug"}})
      */
-    public function postBySlug(BlogPost $post)
+    public function postBySlug(Advertisement $post)
     {
         // Same as doing findOneBy(['slug' => contents of {slug}])
         return $this->json($post);
@@ -66,7 +66,7 @@ class BlogController extends AbstractController
         /** @var Serializer $serializer */
         $serializer = $this->get('serializer');
 
-        $blogPost = $serializer->deserialize($request->getContent(), BlogPost::class, 'json');
+        $blogPost = $serializer->deserialize($request->getContent(), Advertisement::class, 'json');
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($blogPost);
@@ -78,7 +78,7 @@ class BlogController extends AbstractController
     /**
      * @Route("/post/{id}", name="blog_delete", methods={"DELETE"})
      */
-    public function delete(BlogPost $post)
+    public function delete(Advertisement $post)
     {
         $em = $this->getDoctrine()->getManager();
         $em->remove($post);
