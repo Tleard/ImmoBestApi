@@ -12,12 +12,12 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 /**
- * @Route("/blog")
+ * @Route("/advertisement")
  */
-class BlogController extends AbstractController
+class AdvertisementController extends AbstractController
 {
     /**
-     * @Route("/{page}", name="blog_list", defaults={"page": 5}, requirements={"page"="\d+"})
+     * @Route("/{page}", name="advertisement_list", defaults={"page": 5}, requirements={"page"="\d+"})
      */
     public function list($page = 1, Request $request)
     {
@@ -30,14 +30,14 @@ class BlogController extends AbstractController
                 'page' => $page,
                 'limit' => $limit,
                 'data' => array_map(function (Advertisement $item) {
-                    return $this->generateUrl('blog_by_slug', ['slug' => $item->getSlug()]);
+                    return $this->generateUrl('advertisement_by_slug', ['slug' => $item->getSlug()]);
                 }, $items)
             ]
         );
     }
 
     /**
-     * @Route("/post/{id}", name="blog_by_id", requirements={"id"="\d+"}, methods={"GET"})
+     * @Route("/post/{id}", name="advertisement_by_id", requirements={"id"="\d+"}, methods={"GET"})
      * @ParamConverter("post", class="App:Advertisement")
      */
     public function post($post)
@@ -47,7 +47,7 @@ class BlogController extends AbstractController
     }
 
     /**
-     * @Route("/post/{slug}", name="blog_by_slug", methods={"GET"})
+     * @Route("/post/{slug}", name="advertisement_by_slug", methods={"GET"})
      * The below annotation is not required when $post is typehinted with Advertisement
      * and route parameter name matches any field on the Advertisement entity
      * @ParamConverter("post", class="App:Advertisement", options={"mapping": {"slug": "slug"}})
@@ -59,7 +59,7 @@ class BlogController extends AbstractController
     }
 
     /**
-     * @Route("/add", name="blog_add", methods={"POST"})
+     * @Route("/add", name="advertisement_add", methods={"POST"})
      */
     public function add(Request $request)
     {
@@ -76,7 +76,7 @@ class BlogController extends AbstractController
     }
 
     /**
-     * @Route("/post/{id}", name="blog_delete", methods={"DELETE"})
+     * @Route("/post/{id}", name="advertisement_delete", methods={"DELETE"})
      */
     public function delete(Advertisement $post)
     {
