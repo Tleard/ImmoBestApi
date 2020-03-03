@@ -3,54 +3,23 @@
 namespace App\Controller;
 
 use App\Entity\Advertisement;
-use DateTime;
-use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+
 /**
- * Class AdvertisementController
- * @package App\Controller
- *
  * @Route("/advertisement")
  */
-class AdvertisementController extends AbstractController {
-
+class AdvertisementController extends AbstractController
+{
     /**
-     * @param Request $request
-     * @Route("/", name="AdvertisementCreate", methods={"POST"})
-     * @return JsonResponse
-     * @throws Exception
+     * @Route("/{page}", name="advertisement_list", defaults={"page": 5}, requirements={"page"="\d+"})
      */
-    public function CreateAction(Request $request)
-    {
-        $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = [new ObjectNormalizer()];
-
-        $serializer = new Serializer($normalizers, $encoders);
-
-        $advertisement = $serializer->deserialize($request->getContent(), Advertisement::class, 'json');
-
-        $em = $this->getDoctrine()->getManager();
-        $advertisement->setPublished(new DateTime());
-        $em->persist($advertisement);
-        $em->flush();
-
-        return $this->json($advertisement);
-    }
-
-    /**
-     * @Route("/{page}", name="AdvertisementList", defaults={"page": 1}, requirements={"page"="\d+"})
-     * @param $page
-     * @return JsonResponse
-     */
-    public function listAction($page, Request $request)
+    public function list($page = 1, Request $request)
     {
         $limit = $request->get('limit', 10);
         $repository = $this->getDoctrine()->getRepository(Advertisement::class);
@@ -59,47 +28,62 @@ class AdvertisementController extends AbstractController {
         return $this->json(
             [
                 'page' => $page,
-                'data' => array_map(function (Advertisement $item){
-                    return $this->generateUrl('AdvertisementGet', ['id' =>$item->getId()]);
+                'limit' => $limit,
+                'data' => array_map(function (Advertisement $item) {
+                    return $this->generateUrl('advertisement_by_slug', ['slug' => $item->getSlug()]);
                 }, $items)
             ]
         );
     }
 
     /**
-     * @Route("/post/{id}", name="AdvertisementGet", requirements={"id"="\d+"}, methods={"GET"})
-     * @param $id
-     * @return JsonResponse
+     * @Route("/post/{id}", name="advertisement_by_id", requirements={"id"="\d+"}, methods={"GET"})
+     * @ParamConverter("post", class="App:Advertisement")
      */
-    public function getAction($id)
+    public function post($post)
     {
-        return $this->json(
-            $this->getDoctrine()->getRepository(Advertisement::class)->find($id)
-        );
+        // It's the same as doing find($id) on repository
+        return $this->json($post);
     }
 
     /**
-     * @Route("post/{slug}", name="AdvertisementBySlug")
+     * @Route("/post/{slug}", name="advertisement_by_slug", methods={"GET"})
+     * The below annotation is not required when $post is typehinted with Advertisement
+     * and route parameter name matches any field on the Advertisement entity
+     * @ParamConverter("post", class="App:Advertisement", options={"mapping": {"slug": "slug"}})
      */
-    public function GetBySlug($slug)
+    public function postBySlug(Advertisement $post)
     {
-        return $this->json(
-            $this->getDoctrine()->getRepository(Advertisement::class)->findOneBy(['slug' => $slug])
-        );
+        // Same as doing findOneBy(['slug' => contents of {slug}])
+        return $this->json($post);
     }
 
     /**
-     * @param Advertisement $advertisement
-     * @Route("/post/{id}", name="AdvertisementDelete", methods={"DELETE"})
-     * @return JsonResponse
+     * @Route("/add", name="advertisement_add", methods={"POST"})
      */
-    public function DeleteAction(Advertisement $advertisement)
+    public function add(Request $request)
+    {
+        /** @var Serializer $serializer */
+        $serializer = $this->get('serializer');
+
+        $blogPost = $serializer->deserialize($request->getContent(), Advertisement::class, 'json');
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($blogPost);
+        $em->flush();
+
+        return $this->json($blogPost);
+    }
+
+    /**
+     * @Route("/post/{id}", name="advertisement_delete", methods={"DELETE"})
+     */
+    public function delete(Advertisement $post)
     {
         $em = $this->getDoctrine()->getManager();
-        $em->remove($advertisement);
+        $em->remove($post);
         $em->flush();
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
-
 }

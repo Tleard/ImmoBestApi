@@ -10,38 +10,36 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\Regex;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"get"}},
  *     itemOperations={
- *          "get"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
- *               "normalization_context"={
- *                  "groups"={"get"}
- *               }
- *          },
- *          "put"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user",
- *              "denormalization_context"={
- *                  "groups"={"put"}
- *              },
- *              "normalization_context"={
- *                  "groups"={"get"}
- *              }
- *          }
- *      },
+ *         "get"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         },
+ *         "put"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
+ *             "denormalization_context"={
+ *                 "groups"={"put"}
+ *             },
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         }
+ *     },
  *     collectionOperations={
- *          "post" = {
- *              "denormalization_context"={
- *                  "groups"={"post"}
- *              },
- *              "normalization_context"={
- *                  "groups"={"put"}
- *              }
- *          }
- *     }
+ *         "post"={
+ *             "denormalization_context"={
+ *                 "groups"={"post"}
+ *             },
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         }
+ *     },
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity("username")
@@ -49,63 +47,74 @@ use Symfony\Component\Validator\Constraints\Regex;
  */
 class User implements UserInterface
 {
+
+    const ROLE_USER = 'ROLE_USER';
+    const ROLE_ADMIN = 'ROLE_ADMIN';
+    const ROLE_SUPERADMIN = 'ROLE_SUPERADMIN';
+    const ROLE_AGENCY = 'ROLE_AGENCY';
+
+    const DEFAULT_ROLES = [self::ROLE_USER];
+
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get", "get-comment-with-author"})
+     * @Groups({"get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "get-comment-with-author"})
-     * @Assert\NotBlank(groups={"post"})
-     * @Assert\Length(min=6, max=255, groups={"post"})
+     * @Groups({"get", "post", "get-comment-with-author", "get-blog-post-with-author"})
+     * @Assert\NotBlank()
+     * @Assert\Length(min=6, max=255)
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\Regex(
-     *     pattern="/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/",
-     *     message="Password must be six characters long and contain at least one digit, one uppercase letter and one lower case letter"
-     * )
      * @Groups({"put", "post"})
+     * @Assert\NotBlank()
+     * @Assert\Regex(
+     *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
+     *     message="Password must be seven characters long and contain at least one digit, one upper case letter and one lower case letter"
+     * )
      */
     private $password;
 
     /**
-     * @Assert\Expression(
-     *     "this.getPassword() == this.getRetypedPassword()",
-     *      message="Passwords does not match"
-     * )
      * @Groups({"put", "post"})
+     * @Assert\NotBlank()
+     * @Assert\Expression(
+     *     "this.getPassword() === this.getRetypedPassword()",
+     *     message="Passwords does not match"
+     * )
      */
     private $retypedPassword;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "put", "get-comment-with-author"})
-     * @Assert\NotBlank(groups={"post"})
-     * @Assert\Length(min=5, max=255, groups={"post", "put"})
+     * @Groups({"get", "post", "put", "get-comment-with-author", "get-blog-post-with-author"})
+     * @Assert\NotBlank()
+     * @Assert\Length(min=5, max=255)
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"put", "post", "get-comment-with-author"})
+     * @Groups({"post", "put", "get-owner"})
      * @Assert\NotBlank()
      * @Assert\Email()
-     * @Assert\Length(min=5, max=45)
+     * @Assert\Length(min=6, max=255)
      */
     private $email;
 
     /**
-     * @@ORM\OneToMany(targetEntity="App\Entity\Advertisement", mappedBy="author")
+     * @ORM\OneToMany(targetEntity="Advertisement", mappedBy="author")
      * @Groups({"get"})
      */
-    private $advertisement;
+    private $posts;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
@@ -113,13 +122,20 @@ class User implements UserInterface
      */
     private $comments;
 
+    /**
+     * @ORM\Column(type="simple_array", length=200)
+     * @Groups({"get-admin","get-owner"})
+     */
+    private $roles;
+
     public function __construct()
     {
-        $this->advertisement = new ArrayCollection();
+        $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->roles = self::DEFAULT_ROLES;
     }
 
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
@@ -175,61 +191,46 @@ class User implements UserInterface
     /**
      * @return Collection
      */
-    public function getAdvertisement()
+    public function getPosts(): Collection
     {
-        return $this->advertisement;
+        return $this->posts;
     }
 
     /**
      * @return Collection
      */
-    public function getComments()
+    public function getComments(): Collection
     {
         return $this->comments;
     }
 
-
-
-
-    /**
-     * @inheritDoc
-     */
-    public function getRoles()
+    public function getRoles() : array
     {
-        return ['ROLE_USER'];
+        return $this->roles;
     }
 
-    /**
-     * @inheritDoc
-     */
+    public function setRoles(array $roles)
+    {
+        $this->roles = $roles;
+    }
+
     public function getSalt()
     {
         return null;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function eraseCredentials()
     {
 
     }
 
-    /**
-     * @return mixed
-     */
     public function getRetypedPassword()
     {
         return $this->retypedPassword;
     }
 
-    /**
-     * @param mixed $retypedPassword
-     */
     public function setRetypedPassword($retypedPassword): void
     {
         $this->retypedPassword = $retypedPassword;
     }
-
-
 }

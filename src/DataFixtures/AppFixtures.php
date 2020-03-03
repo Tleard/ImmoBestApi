@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
+use phpDocumentor\Reflection\Types\Self_;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
@@ -26,26 +27,30 @@ class AppFixtures extends Fixture
         [
             'username' => 'admin',
             'email' => 'admin@blog.com',
-            'name' => 'Piotr Jura',
-            'password' => 'admin1'
+            'name' => 'Thomas Leard',
+            'password' => 'admin1',
+            'roles' => [User::ROLE_ADMIN]
         ],
         [
             'username' => 'john_doe',
             'email' => 'john@blog.com',
             'name' => 'John Doe',
-            'password' => 'secret123#'
+            'password' => 'secret123#',
+            'roles' => [User::ROLE_USER]
         ],
         [
             'username' => 'rob_smith',
             'email' => 'rob@blog.com',
             'name' => 'Rob Smith',
-            'password' => 'secret123#'
+            'password' => 'secret123#',
+            'roles' => [User::ROLE_AGENCY]
         ],
         [
             'username' => 'jenny_rowling',
             'email' => 'jenny@blog.com',
             'name' => 'Jenny Rowling',
-            'password' => 'secret123#'
+            'password' => 'secret123#',
+            'roles' => [User::ROLE_USER]
         ]
     ];
 
@@ -62,11 +67,11 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $this->loadUsers($manager);
-        $this->loadBlogPosts($manager);
+        $this->loadAdvertisements($manager);
         $this->loadComments($manager);
     }
 
-    public function loadBlogPosts(ObjectManager $manager)
+    public function loadAdvertisements(ObjectManager $manager)
     {
         for ($i = 0; $i < 100; $i++) {
             $advertisement = new Advertisement();
@@ -74,7 +79,7 @@ class AppFixtures extends Fixture
             $advertisement->setPublished($this->faker->dateTimeThisYear);
             $advertisement->setContent($this->faker->realText());
 
-            $authorReference = $this->getRandomUserReference();
+            $authorReference = $this->getRandomUserReference($advertisement);
 
             $advertisement->setAuthor($authorReference);
             $advertisement->setSlug($this->faker->slug);
@@ -95,7 +100,7 @@ class AppFixtures extends Fixture
                 $comment->setContent($this->faker->realText());
                 $comment->setPublished($this->faker->dateTimeThisYear);
 
-                $authorReference = $this->getRandomUserReference();
+                $authorReference = $this->getRandomUserReference($comment);
 
                 $comment->setAuthor($authorReference);
                 $comment->setAdvertisement($this->getReference("advertisement_$i"));
@@ -119,6 +124,7 @@ class AppFixtures extends Fixture
                 $user,
                 $userFixture['password']
             ));
+            $user->setRoles($userFixture['roles']);
 
             $this->addReference('user_' . $userFixture['username'], $user);
 
@@ -128,8 +134,23 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    protected function getRandomUserReference()
+    protected function getRandomUserReference($entity): User
     {
-        return $this->getReference('user_'.self::USERS[rand(0, 3)]['username']);
+        $randomUser = self::USERS[rand(0,3)];
+
+        if ($entity instanceof Advertisement && !count(array_intersect($randomUser['roles'],
+                [User::ROLE_ADMIN, User::ROLE_SUPERADMIN, User::ROLE_AGENCY])))
+        {
+            return $this->getRandomUserReference($entity);
+        }
+
+        if ($entity instanceof Comment && !count(array_intersect($randomUser['roles'],
+                [User::ROLE_ADMIN, User::ROLE_SUPERADMIN, User::ROLE_AGENCY, User::ROLE_USER])))
+        {
+            return $this->getRandomUserReference($entity);
+        }
+
+
+        return $this->getReference('user_'.$randomUser['username']);
     }
 }

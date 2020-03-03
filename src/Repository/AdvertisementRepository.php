@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Advertisement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * @method Advertisement|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,21 +14,21 @@ use Doctrine\Common\Persistence\ManagerRegistry;
  */
 class AdvertisementRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Advertisement::class);
     }
 
-    // /**
-    //  * @return Advertisement[] Returns an array of Advertisement objects
-    //  */
+//    /**
+//     * @return Advertisement[] Returns an array of Advertisement objects
+//     */
     /*
     public function findByExampleField($value)
     {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.exampleField = :val')
             ->setParameter('val', $value)
-            ->orderBy('a.id', 'ASC')
+            ->orderBy('b.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
@@ -39,8 +39,8 @@ class AdvertisementRepository extends ServiceEntityRepository
     /*
     public function findOneBySomeField($value): ?Advertisement
     {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.exampleField = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult()

@@ -2,13 +2,11 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiSubresource;
-use DateTime;
-use DateTimeInterface as DateTimeInterfaceAlias;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Entity\Comment;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,18 +15,22 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="App\Repository\AdvertisementRepository")
  * @ApiResource(
  *     itemOperations={
- *     "get",
- *     "post"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user"
- *          }
- *      },
- *     collectionOperations={
- *          "post"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
- *          },
- *          "get"
+ *         "get"={
+ *             "normalization_context"={
+ *                 "groups"={"get-blog-post-with-author"}
+ *             }
+ *         },
+ *         "put"={
+ *             "access_control"="is_granted('ROLE_ADMIN') and object.getAuthor() == user"
+ *         }
  *     },
- *       denormalizationContext={
+ *     collectionOperations={
+ *         "get",
+ *         "post"={
+ *             "access_control"="is_granted('ROLE_ADMIN')"
+ *         }
+ *     },
+ *     denormalizationContext={
  *         "groups"={"post"}
  *     }
  * )
@@ -39,48 +41,50 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get-blog-post-with-author"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Assert\Length(min="7")
-     * @Groups({"post"})
+     * @Assert\Length(min=10)
+     * @Groups({"post", "get-blog-post-with-author"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"get-blog-post-with-author"})
      */
     private $published;
 
     /**
-     * @ORM\Column(type="text", length=255)
+     * @ORM\Column(type="text")
      * @Assert\NotBlank()
-     * @Assert\Length(min="2")
-     * @Groups({"post"})
+     * @Assert\Length(min=20)
+     * @Groups({"post", "get-blog-post-with-author"})
      */
     private $content;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="advertisement")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="posts")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"get-blog-post-with-author"})
      */
     private $author;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotBlank()
-     * @Groups({"post"})
+     * @Groups({"post", "get-blog-post-with-author"})
      */
     private $slug;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="advertisement")
-     * @ORM\JoinColumn(nullable=true)
-     * @Groups({"post", "get"})
      * @ApiSubresource()
+     * @Groups({"get-blog-post-with-author"})
      */
     private $comments;
 
@@ -89,16 +93,12 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
         $this->comments = new ArrayCollection();
     }
 
-    /**
-     * @return ArrayCollection
-     */
-    public function getComments()
+    public function getComments(): Collection
     {
         return $this->comments;
     }
 
-
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
@@ -108,19 +108,19 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
         return $this->title;
     }
 
-    public function setTitle($title): self
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
         return $this;
     }
 
-    public function getPublished()
+    public function getPublished(): ?\DateTimeInterface
     {
         return $this->published;
     }
 
-    public function setPublished(DateTimeInterfaceAlias $published): PublishedDateEntityInterface
+    public function setPublished(\DateTimeInterface $published): PublishedDateEntityInterface
     {
         $this->published = $published;
 
@@ -139,19 +139,26 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
         return $this;
     }
 
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
 
+    public function setSlug($slug): void
+    {
+        $this->slug = $slug;
+    }
 
     /**
      * @return User
      */
-    public function getAuthor() : User
+    public function getAuthor(): User
     {
         return $this->author;
     }
 
     /**
      * @param UserInterface $author
-     * @return AuthoredEntityInterface
      */
     public function setAuthor(UserInterface $author): AuthoredEntityInterface
     {
@@ -159,23 +166,4 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
 
         return $this;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getSlug()
-    {
-        return $this->slug;
-    }
-
-    /**
-     * @param mixed $slug
-     */
-    public function setSlug($slug): void
-    {
-        $this->slug = $slug;
-    }
-
-
-
 }
