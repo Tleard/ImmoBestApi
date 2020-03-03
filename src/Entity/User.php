@@ -174,12 +174,12 @@ class User implements UserInterface
     private $passwordChangeDate;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", options={"default"=true})
      */
     private $enabled;
 
     /**
-     * @ORM\Column(type="string", length=40, nullable=true)
+     * @ORM\Column(type="string", length=40, nullable=true, name="confirmation_token")
      */
     private $confirmationToken;
 
@@ -189,6 +189,7 @@ class User implements UserInterface
         $this->comments = new ArrayCollection();
         $this->roles = self::DEFAULT_ROLES;
         $this->enabled = false;
+        $this->confirmationToken = null;
     }
 
     public function getId()
@@ -362,5 +363,5 @@ class User implements UserInterface
         $this->confirmationToken = $confirmationToken;
     }
 
-    
+
 }
