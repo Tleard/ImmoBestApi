@@ -5,6 +5,9 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Controller\UploadImageAction;
+
 
 /**
  * Class Image
@@ -12,7 +15,21 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @ORM\Entity()
  * @Vich\Uploadable()
  * @ApiResource(
- *
+ *    collectionOperations={
+ *          "get",
+*          "post"={
+*         "method"="POST",
+*         "path"="/images",
+*         "controller"=UploadImageAction::class,
+*         "defaults"={"_api_receive"=false},
+*         "validation_groups"={"media_object_post"},
+*         "swagger_context" = {
+*            "consumes" = {
+*                "multipart/form-data",
+*             }
+*         }
+*     }
+ *   }
  * )
  */
 class Image
@@ -26,6 +43,7 @@ class Image
 
     /**
      * @Vich\UploadableField(mapping="images", fileNameProperty="url")
+     * @Assert\NotNull()
      */
     private $file;
 
