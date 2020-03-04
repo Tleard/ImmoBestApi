@@ -3,6 +3,7 @@
 namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
+use App\Email\Mailer;
 use App\Entity\User;
 use App\Security\TokenGenerator;
 use Swift_Mailer;
@@ -24,14 +25,14 @@ class UserRegisterSubscriber implements EventSubscriberInterface
      */
     private $tokenGenerator;
     /**
-     * @var Swift_Mailer
+     * @var Mailer
      */
     private $mailer;
 
     public function __construct(
         UserPasswordEncoderInterface $passwordEncoder,
         TokenGenerator $tokenGenerator,
-        Swift_Mailer $mailer)
+        Mailer $mailer)
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->tokenGenerator = $tokenGenerator;
@@ -66,12 +67,6 @@ class UserRegisterSubscriber implements EventSubscriberInterface
             $this->tokenGenerator->getRandomSecureToken()
         );
 
-        $message = (new Swift_Message('Hello From API Platform'))
-            ->setFrom('tembschan@gmail.com')
-            ->setTo('tembschan@gmail.com')
-            ->setBody('Hello There');
-
-            $this->mailer->send($message);
-
+        $this->mailer->sendConfirmationEmail($user);
     }
 }
