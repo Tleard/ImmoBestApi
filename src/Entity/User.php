@@ -97,7 +97,7 @@ class User implements UserInterface
 
     /**
      * @Groups({"post"})
-     * @Assert\NotBlank(groups={"post"})
+     * @Assert\NotBlank(groups={"put-reset-password"})
      * @Assert\Expression(
      *     "this.getPassword() === this.getRetypedPassword()",
      *     message="Passwords does not match",
@@ -108,7 +108,7 @@ class User implements UserInterface
 
     /**
      * @Groups({"put-reset-password"})
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"put-reset-password"})
      * @Assert\Regex(
      *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
      *     message="Password must be seven characters long and contain at least one digit, one upper case letter and one lower case letter"
@@ -118,7 +118,7 @@ class User implements UserInterface
 
     /**
      * @Groups({"put-reset-password"})
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"put-reset-password"})
      * @Assert\Expression(
      *     "this.getNewPassword() === this.getNewRetypedPassword()",
      *     message="Passwords does not match"
@@ -128,8 +128,8 @@ class User implements UserInterface
 
     /**
      * @Groups({"put-reset-password"})
-     * @Assert\NotBlank()
-     * @UserPassword()
+     * @Assert\NotBlank(groups={"put-reset-password"})
+     * @UserPassword(groups={"put-reset-password"})
      */
     private $oldPassword;
 
