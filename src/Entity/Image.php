@@ -10,28 +10,29 @@ use App\Controller\UploadImageAction;
 
 
 /**
- * Class Image
- * @package App\Entity
- * @ORM\Entity()
- * @Vich\Uploadable()
- * @ApiResource(
- *    collectionOperations={
- *          "get",
+* Class Image
+* @package App\Entity
+* @ORM\Entity()
+* @Vich\Uploadable()
+* @ApiResource(
+*    attributes={"order"={"id": "ASC"}},
+*    collectionOperations={
+*          "get",
 *          "post"={
-*         "method"="POST",
-*         "path"="/images",
-*         "controller"=UploadImageAction::class,
-*         "defaults"={"_api_receive"=false},
-*         "validation_groups"={"media_object_post"},
-*         "swagger_context" = {
-*            "consumes" = {
-*                "multipart/form-data",
-*             }
+*               "method"="POST",
+*               "path"="/images",
+*               "controller"=UploadImageAction::class,
+*               "defaults"={"_api_receive"=false},
+*               "validation_groups"={"media_object_post"},
+*               "swagger_context" = {
+*                   "consumes" = {
+*                       "multipart/form-data",
+*                   }
+*               }
 *         }
-*     }
- *   }
- * )
- */
+*    }
+*)
+*/
 class Image
 {
     /**

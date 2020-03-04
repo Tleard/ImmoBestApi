@@ -14,15 +14,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdvertisementRepository")
  * @ApiResource(
+ *     attributes={"order"={"published": "DESC"}},
  *     itemOperations={
  *         "get"={
  *             "normalization_context"={
  *                 "groups"={"get-blog-post-with-author"}
  *             }
  *         },
- *         "put"={
- *             "access_control"="is_granted('ROLE_ADMIN') and object.getAuthor() == user"
- *         }
+ *         "put"
  *     },
  *     collectionOperations={
  *         "get",
@@ -176,10 +175,7 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
         return $this;
     }
 
-    /**
-     * @return ArrayCollection
-     */
-    public function getImages(): ArrayCollection
+    public function getImages()
     {
         return $this->images;
     }
