@@ -1,0 +1,8 @@
+<h3>
+    Bonjour {{ user.getName() }}, Bienvenue sur l'application ImmoBest.
+</h3>
+
+<p>
+    Pour confirmer votre compte nous vous demandons de clicker sur
+    <a href="{{ url('default_confirm_token', {'token': user.getConfirmationToken()}) }}">ce lien</a> .
+</p>

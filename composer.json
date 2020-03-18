@@ -15,7 +15,9 @@
         "symfony/lts": "^4@dev",
         "symfony/orm-pack": "^1.0",
         "symfony/serializer-pack": "^1.0",
-        "symfony/yaml": "^4.1"
+        "symfony/swiftmailer-bundle": "^3.4",
+        "symfony/yaml": "^4.1",
+        "vich/uploader-bundle": "^1.13"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.0",

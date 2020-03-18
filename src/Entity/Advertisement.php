@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -10,19 +11,49 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdvertisementRepository")
+ * @ApiFilter(RangeFilter::class, properties={"id"})
+ * @ApiFilter(
+ *     SearchFilter::class,
+ *     properties={
+ *         "id": "exact",
+ *         "title": "partial",
+ *         "content": "partial"
+ *         "author.name": "partial"
+ *     }
+ * )
+ * @ApiFilter(
+ *     DateFilter::class,
+ *     properties={
+ *         "published"
+ *     }
+ * )
+ * @ApiFilter(
+ *     OrderFilter::class,
+ *     properties={
+ *         "id",
+ *         "published",
+ *         "title"
+ *     },
+ *     arguments={"orderParameterName"="_order"}
+ * )
+ * @ApiFilter(
+ *     PropertyFilter::class, arguments={
+ *     "parameterName": "properties",
+ *     "overrideDefaultProperties": false,
+ *     "whitelist": {"id", "slug", "title", "content", "author"}
+ * })
+ *
  * @ApiResource(
+ *     attributes={"order"={"published": "DESC"}},
  *     itemOperations={
- *         "get"={
- *             "normalization_context"={
- *                 "groups"={"get-blog-post-with-author"}
- *             }
- *         },
- *         "put"={
- *             "access_control"="is_granted('ROLE_ADMIN') and object.getAuthor() == user"
- *         }
+ *         "get",
+ *         "put"
  *     },
  *     collectionOperations={
  *         "get",
@@ -88,9 +119,18 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      */
     private $comments;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Image")
+     * @ORM\JoinTable()
+     * @ApiSubresource()
+     * @Groups({"post"})
+     */
+    private $images;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getComments(): Collection
@@ -165,5 +205,20 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
         $this->author = $author;
 
         return $this;
+    }
+
+    public function getImages()
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image)
+    {
+        $this->images->add($image);
+    }
+
+    public function removeImage(Image $image)
+    {
+        $this->images->removeElement($image);
     }
 }
