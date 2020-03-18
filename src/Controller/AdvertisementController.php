@@ -18,6 +18,9 @@ class AdvertisementController extends AbstractController
 {
     /**
      * @Route("/{page}", name="advertisement_list", defaults={"page": 5}, requirements={"page"="\d+"})
+     * @param int $page
+     * @param Request $request
+     * @return JsonResponse
      */
     public function list($page = 1, Request $request)
     {
