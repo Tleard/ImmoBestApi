@@ -91,6 +91,20 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
     private $published;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Assert\NotBlank()
+     * @Groups({"post", "get-blog-post-with-author", "get"})
+     */
+    private $price;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Assert\NotBlank()
+     * @Groups({"post", "get-blog-post-with-author", "get"})
+     */
+    private $rooms;
+
+    /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank()
      * @Assert\Length(min=20)
@@ -187,6 +201,38 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
     public function setSlug($slug): void
     {
         $this->slug = $slug;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrice()
+    {
+        return $this->price;
+    }
+
+    /**
+     * @param mixed $price
+     */
+    public function setPrice($price)
+    {
+        $this->price = $price;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRooms()
+    {
+        return $this->rooms;
+    }
+
+    /**
+     * @param mixed $rooms
+     */
+    public function setRooms($rooms)
+    {
+        $this->rooms = $rooms;
     }
 
     /**

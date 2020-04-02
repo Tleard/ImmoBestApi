@@ -43,15 +43,6 @@ class ResetPasswordAction
 
     public function __invoke(User $data)
     {
-        // $reset = new ResetPasswordAction();
-        // $reset();
-//        var_dump(
-//            $data->getNewPassword(),
-//            $data->getNewRetypedPassword(),
-//            $data->getOldPassword(),
-//            $data->getRetypedPassword()
-//        );
-//        die;
         $this->validator->validate($data);
 
         $data->setPassword(
@@ -66,10 +57,5 @@ class ResetPasswordAction
         $token = $this->tokenManager->create($data);
 
         return new JsonResponse(['token' => $token]);
-
-        // Validator is only called after we return the data from this action!
-        // Only hear it checks for user current password, but we've just modified it!
-
-        // Entity is persisted automatically, only if validation pass
     }
 }

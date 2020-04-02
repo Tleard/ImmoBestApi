@@ -41,7 +41,7 @@ class AppFixtures extends Fixture
         ],
         [
             'username' => 'john_doe',
-            'email' => 'john@blog.com',
+            'email' => 'keyoyig299@mailezee.com',
             'name' => 'John Doe',
             'password' => 'secret123#',
             'roles' => [User::ROLE_USER],
@@ -49,11 +49,11 @@ class AppFixtures extends Fixture
         ],
         [
             'username' => 'rob_smith',
-            'email' => 'rob@blog.com',
+            'email' => 'huxtra@gmail.com',
             'name' => 'Rob Smith',
             'password' => 'secret123#',
             'roles' => [User::ROLE_AGENCY],
-            'enabled'=> true
+            'enabled'=> false
         ],
         [
             'username' => 'jenny_rowling',
@@ -91,6 +91,8 @@ class AppFixtures extends Fixture
             $advertisement->setTitle($this->faker->realText(30));
             $advertisement->setPublished($this->faker->dateTimeThisYear);
             $advertisement->setContent($this->faker->realText());
+            $advertisement->setPrice($this->faker->numberBetween(50,1000) *1000);
+            $advertisement->setRooms($this->faker->numberBetween(1,6));
 
             $authorReference = $this->getRandomUserReference($advertisement);
 
