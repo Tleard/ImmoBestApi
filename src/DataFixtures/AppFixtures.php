@@ -93,6 +93,9 @@ class AppFixtures extends Fixture
             $advertisement->setContent($this->faker->realText());
             $advertisement->setPrice($this->faker->numberBetween(50,1000) *1000);
             $advertisement->setRooms($this->faker->numberBetween(1,6));
+            $advertisement->setSquareMeter($this->faker->numberBetween(20,300));
+            $advertisement->setCity($this->faker->city);
+            $advertisement->setAddress($this->faker->address);
 
             $authorReference = $this->getRandomUserReference($advertisement);
 

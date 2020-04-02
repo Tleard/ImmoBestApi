@@ -104,6 +104,28 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      * @Assert\NotBlank()
      * @Groups({"post", "get-blog-post-with-author", "get"})
      */
+    private $square_meter;
+
+
+    /**
+     * @ORM\Column(type="text")
+     * @Assert\NotBlank()
+     * @Groups({"post", "get-blog-post-with-author", "get"})
+     */
+    private $address;
+
+    /**
+     * @ORM\Column(type="text")
+     * @Assert\NotBlank()
+     * @Groups({"post", "get-blog-post-with-author", "get"})
+     */
+    private $city;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Assert\NotBlank()
+     * @Groups({"post", "get-blog-post-with-author", "get"})
+     */
     private $rooms;
 
     /**
@@ -244,6 +266,56 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
     {
         return $this->author;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getSquareMeter()
+    {
+        return $this->square_meter;
+    }
+
+    /**
+     * @param mixed $square_meter
+     */
+    public function setSquareMeter($square_meter)
+    {
+        $this->square_meter = $square_meter;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param mixed $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * @param mixed $city
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+    }
+
+
 
     /**
      * @param UserInterface $author
