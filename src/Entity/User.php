@@ -135,7 +135,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "put", "get-comment-with-author", "get-advertisement-with-author"})
+     * @Groups({"get-author", "post", "put", "get-comment-with-author", "get-advertisement-with-author"})
      * @Assert\NotBlank(groups={"post"})
      * @Assert\Length(min=5, max=255, groups={"post", "put"})
      */
@@ -152,19 +152,19 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Advertisement", mappedBy="author")
-     * @Groups({"get"})
+     * @Groups({"get-author"})
      */
     private $posts;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
-     * @Groups({"post"})
+     * @Groups({"post","get-author"})
      */
     private $comments;
 
     /**
      * @ORM\Column(type="simple_array", length=200)
-     * @Groups({"get-admin", "get-owner"})
+     * @Groups({"get-admin", "get-owner","get-author"})
      */
     private $roles;
 
