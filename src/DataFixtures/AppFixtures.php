@@ -4,13 +4,20 @@ namespace App\DataFixtures;
 
 use App\Entity\Advertisement;
 use App\Entity\Comment;
+use App\Entity\Image;
 use App\Entity\User;
+use App\Repository\ImageRepository;
 use App\Security\TokenGenerator;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
+use http\Env\Request;
 use phpDocumentor\Reflection\Types\Self_;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\HttpFoundation\File\File;
 
 class AppFixtures extends Fixture
 {
@@ -29,6 +36,10 @@ class AppFixtures extends Fixture
      */
     private $tokenGenerator;
 
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
 
     private const USERS = [
         [
@@ -66,11 +77,12 @@ class AppFixtures extends Fixture
     ];
 
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder, TokenGenerator $tokenGenerator)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, TokenGenerator $tokenGenerator, EntityManagerInterface $em)
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->faker = Factory::create();
         $this->tokenGenerator =$tokenGenerator;
+        $this->em = $em;
     }
 
     /**
@@ -79,9 +91,21 @@ class AppFixtures extends Fixture
      */
     public function load(ObjectManager $manager)
     {
+        $this->loadImages($manager);
         $this->loadUsers($manager);
         $this->loadAdvertisements($manager);
         $this->loadComments($manager);
+    }
+
+    public function loadImages(ObjectManager $manager)
+    {
+        for ($i = 1; $i < 16; $i++) {
+            $image = new Image();
+            $image->setFile(new File("/var/www/html/Immobest/ImmoBestApi/public/pictures/picture_" . $i . ".jpg"));
+            $image->setUrl("picture_" . $i . ".jpg");
+            $manager->persist($image);
+        }
+        $manager->flush();
     }
 
     public function loadAdvertisements(ObjectManager $manager)
@@ -96,9 +120,8 @@ class AppFixtures extends Fixture
             $advertisement->setSquareMeter($this->faker->numberBetween(20,300));
             $advertisement->setCity($this->faker->city);
             $advertisement->setAddress($this->faker->address);
-
+            $advertisement->addImage($this->em->getRepository('App:Image')->findOneBy(array("url" => "picture_" . rand(1,15) . ".jpg")));
             $authorReference = $this->getRandomUserReference($advertisement);
-
             $advertisement->setAuthor($authorReference);
             $advertisement->setSlug($this->faker->slug);
 
