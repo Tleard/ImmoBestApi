@@ -54,8 +54,11 @@ use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
  * @ApiResource(
  *     attributes={"order"={"published": "DESC"}},
  *     itemOperations={
- *         "get",
- *         "put"
+ *         "get"={
+ *             "normalization_context"={
+ *                 "groups"={"get-blog-post-with-author"}
+ *             }
+ *     }
  *     },
  *     collectionOperations={
  *         "get",
@@ -64,7 +67,7 @@ use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
  *         }
  *     },
  *     denormalizationContext={
- *         "groups"={"post"}
+ *         "groups"={"post", "get"}
  *     }
  * )
  */
@@ -74,7 +77,7 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get-blog-post-with-author"})
+     * @Groups({"get-blog-post-with-author", "get"})
      */
     private $id;
 
@@ -82,13 +85,13 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Assert\Length(min=10)
-     * @Groups({"post", "get-blog-post-with-author"})
+     * @Groups({"post", "get-blog-post-with-author", "get"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"get-blog-post-with-author"})
+     * @Groups({"get-blog-post-with-author", "get"})
      */
     private $published;
 
@@ -132,28 +135,28 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      * @ORM\Column(type="text")
      * @Assert\NotBlank()
      * @Assert\Length(min=20)
-     * @Groups({"post", "get-blog-post-with-author"})
+     * @Groups({"post", "get-blog-post-with-author", "get"})
      */
     private $content;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="posts")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"get-blog-post-with-author"})
+     * @Groups({"get-blog-post-with-author", "get"})
      */
     private $author;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotBlank()
-     * @Groups({"post", "get-blog-post-with-author"})
+     * @Groups({"post", "get-blog-post-with-author","get"})
      */
     private $slug;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="advertisement")
      * @ApiSubresource()
-     * @Groups({"get-blog-post-with-author"})
+     * @Groups({"get-blog-post-with-author","get"})
      */
     private $comments;
 
@@ -161,7 +164,7 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      * @ORM\ManyToMany(targetEntity="App\Entity\Image")
      * @ORM\JoinTable()
      * @ApiSubresource()
-     * @Groups({"post"})
+     * @Groups({"post","get-blog-post-with-author","get"})
      */
     private $images;
 

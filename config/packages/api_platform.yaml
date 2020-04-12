@@ -5,4 +5,4 @@ api_platform:
 #        json:
 #            mime_types: ['application/json']
     eager_loading:
-        enabled: true
+        enabled: false

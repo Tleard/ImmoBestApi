@@ -19,7 +19,7 @@ use App\Controller\ResetPasswordAction;
  *         "get"={
  *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
  *             "normalization_context"={
- *                 "groups"={"get"}
+ *                 "groups"={"get-author"}
  *             }
  *         },
  *         "put"={
@@ -77,7 +77,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "get-comment-with-author", "get-advertisement-with-author"})
+     * @Groups({"get", "post", "get-comment-with-author", "get-blog-post-with-author"})
      * @Assert\NotBlank(groups={"post"})
      * @Assert\Length(min=6, max=255, groups={"post"})
      */
@@ -158,7 +158,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
-     * @Groups({"get"})
+     * @Groups({"post"})
      */
     private $comments;
 
