@@ -58,7 +58,7 @@ class Image
     /**
      *@ORM\Column(nullable=true)
      *@ApiSubresource()
-     *@Groups({"get-blog-post-with-author"})
+     *@Groups({"get-blog-post-with-author", "get-author"})
      */
     private $url;
 

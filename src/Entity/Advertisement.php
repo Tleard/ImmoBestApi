@@ -61,7 +61,11 @@ use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
  *     }
  *     },
  *     collectionOperations={
- *         "get",
+ *         "get"={
+ *             "normalization_context"={
+ *                 "groups"={"get-blog-post-with-author"}
+ *             }
+ *          },
  *         "post"={
  *             "access_control"="is_granted('ROLE_ADMIN')"
  *         }
