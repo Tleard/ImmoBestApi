@@ -109,9 +109,9 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotBlank()
-     * @Groups({"post", "get-blog-post-with-author", "get"})
+     * @Groups({"get-blog-post-with-author", "get"})
      */
-    private $square_meter;
+    private $squareMeter;
 
 
     /**
@@ -279,15 +279,15 @@ class Advertisement implements AuthoredEntityInterface, PublishedDateEntityInter
      */
     public function getSquareMeter()
     {
-        return $this->square_meter;
+        return $this->squareMeter;
     }
 
     /**
-     * @param mixed $square_meter
+     * @param mixed $squareMeter
      */
-    public function setSquareMeter($square_meter)
+    public function setSquareMeter($squareMeter)
     {
-        $this->square_meter = $square_meter;
+        $this->squareMeter = $squareMeter;
     }
 
     /**
